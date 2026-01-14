@@ -45,21 +45,54 @@
       transform: translateY(1px);
       background: #444;
     }
+    .dot.listening { background: #00ff66; }
     .dot.offline { background: #444; }
   </style>
 </head>
 <body>
   <div class="container">
     <div>
-      <div class="phrase">Standing by.</div>
-      <div class="line2">
-        <span class="dot offline"></span>
-        Watch this frequency for contact opportunities.
+      <div class="phrase" id="phrase">Standing by.</div>
+
+      <div class="line2" id="line2">
+        <span class="dot offline" id="dot"></span>
+        <span id="statusText">Watch this frequency for contact opportunities.</span>
       </div>
+
       <div class="hint">
         If you find us on frequency and make contact with an officer, you may receive an invitation to FEAR, the non club, club.
       </div>
     </div>
   </div>
+
+  <script>
+    async function loadStatus() {
+      try {
+        const res = await fetch("status.json", { cache: "no-store" });
+        const data = await res.json();
+
+        const phraseEl = document.getElementById("phrase");
+        const statusTextEl = document.getElementById("statusText");
+        const dotEl = document.getElementById("dot");
+
+        if (data.status === "listening") {
+          phraseEl.textContent = "CQ and listening!";
+          dotEl.className = "dot listening";
+          const mode = data.mode ? ` · ${data.mode}` : "";
+          statusTextEl.textContent = `${data.frequency}${mode}`;
+        } else {
+          phraseEl.textContent = "Standing by.";
+          dotEl.className = "dot offline";
+          statusTextEl.textContent = "Watch this frequency for contact opportunities.";
+        }
+      } catch (e) {
+        // If status.json can't be read for any reason, stay in offline mode
+        document.getElementById("phrase").textContent = "Standing by.";
+        document.getElementById("statusText").textContent = "Watch this frequency for contact opportunities.";
+      }
+    }
+
+    loadStatus();
+  </script>
 </body>
 </html>
