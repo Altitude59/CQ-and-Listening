@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <title>WA7SJI</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Optional: keep it mysterious -->
+  <meta name="robots" content="noindex, nofollow" />
+
   <style>
     html, body {
       margin: 0;
@@ -12,6 +16,7 @@
       color: #fff;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
     }
+
     .container {
       height: 100%;
       display: grid;
@@ -19,16 +24,19 @@
       text-align: center;
       padding: 24px;
     }
+
     .phrase {
       font-size: clamp(1.6rem, 4vw, 2.4rem);
       letter-spacing: 0.04em;
       margin-bottom: 0.9rem;
     }
+
     .line2 {
       font-size: clamp(1.0rem, 2.2vw, 1.25rem);
       opacity: 0.78;
       min-height: 1.6em;
     }
+
     .hint {
       margin-top: 1.2rem;
       font-size: 0.95rem;
@@ -36,6 +44,7 @@
       max-width: 42rem;
       line-height: 1.5;
     }
+
     .dot {
       display: inline-block;
       width: 10px;
@@ -45,16 +54,48 @@
       transform: translateY(1px);
       background: #444;
     }
+
     .dot.listening { background: #00ff66; }
-    .dot.offline { background: #444; }
+    .dot.offline   { background: #444; }
+
+    /* Rolling ellipsis */
+    .ellipsis {
+      display: none;
+      margin-left: 0.25em;
+    }
+
+    .ellipsis.on {
+      display: inline-block;
+    }
+
+    .ellipsis span {
+      opacity: 0;
+      animation: dotAnim 1.4s infinite;
+    }
+
+    .ellipsis span:nth-child(1) { animation-delay: 0s; }
+    .ellipsis span:nth-child(2) { animation-delay: 0.2s; }
+    .ellipsis span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dotAnim {
+      0%   { opacity: 0; }
+      20%  { opacity: 1; }
+      100% { opacity: 0; }
+    }
   </style>
 </head>
+
 <body>
   <div class="container">
     <div>
-      <div class="phrase" id="phrase">Standing by.</div>
+      <div class="phrase">
+        <span id="phraseText">Standing by.</span>
+        <span class="ellipsis" id="ellipsis">
+          <span>.</span><span>.</span><span>.</span>
+        </span>
+      </div>
 
-      <div class="line2" id="line2">
+      <div class="line2">
         <span class="dot offline" id="dot"></span>
         <span id="statusText">Watch this frequency for contact opportunities.</span>
       </div>
@@ -67,32 +108,42 @@
 
   <script>
     async function loadStatus() {
+      const phraseTextEl = document.getElementById("phraseText");
+      const ellipsisEl   = document.getElementById("ellipsis");
+      const statusTextEl = document.getElementById("statusText");
+      const dotEl        = document.getElementById("dot");
+
       try {
         const res = await fetch(`status.json?cb=${Date.now()}`, { cache: "no-store" });
+        if (!res.ok) throw new Error("status.json not reachable");
+
         const data = await res.json();
+        const status = String(data.status || "").trim().toLowerCase();
 
-        const phraseEl = document.getElementById("phrase");
-        const statusTextEl = document.getElementById("statusText");
-        const dotEl = document.getElementById("dot");
-
-        if (data.status === "listening") {
-          phraseEl.textContent = "CQ and listening!";
+        if (status === "listening") {
+          phraseTextEl.textContent = "CQ and listening";
+          ellipsisEl.className = "ellipsis on";
           dotEl.className = "dot listening";
+
           const mode = data.mode ? ` · ${data.mode}` : "";
-          statusTextEl.textContent = `${data.frequency}${mode}`;
+          statusTextEl.textContent = `${data.frequency || ""}${mode}`.trim();
         } else {
-          phraseEl.textContent = "Standing by.";
+          phraseTextEl.textContent = "Standing by.";
+          ellipsisEl.className = "ellipsis";
           dotEl.className = "dot offline";
           statusTextEl.textContent = "Watch this frequency for contact opportunities.";
         }
       } catch (e) {
-        // If status.json can't be read for any reason, stay in offline mode
-        document.getElementById("phrase").textContent = "Standing by.";
-        document.getElementById("statusText").textContent = "Watch this frequency for contact opportunities.";
+        phraseTextEl.textContent = "Standing by.";
+        ellipsisEl.className = "ellipsis";
+        dotEl.className = "dot offline";
+        statusTextEl.textContent = "Watch this frequency for contact opportunities.";
+        console.error(e);
       }
     }
 
     loadStatus();
+    setInterval(loadStatus, 15000);
   </script>
 </body>
 </html>
