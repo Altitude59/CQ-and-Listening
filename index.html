@@ -68,7 +68,7 @@
   <script>
     async function loadStatus() {
       try {
-        const res = await fetch("status.json", { cache: "no-store" });
+        const res = await fetch(`status.json?cb=${Date.now()}`, { cache: "no-store" });
         const data = await res.json();
 
         const phraseEl = document.getElementById("phrase");
