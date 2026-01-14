@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WA7SJI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #000;
+      color: #fff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+    .container {
+      height: 100%;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 24px;
+    }
+    .phrase {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      letter-spacing: 0.04em;
+      margin-bottom: 0.9rem;
+    }
+    .line2 {
+      font-size: clamp(1.0rem, 2.2vw, 1.25rem);
+      opacity: 0.78;
+      min-height: 1.6em;
+    }
+    .hint {
+      margin-top: 1.2rem;
+      font-size: 0.95rem;
+      opacity: 0.55;
+      max-width: 42rem;
+      line-height: 1.5;
+    }
+    .dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 10px;
+      transform: translateY(1px);
+      background: #444;
+    }
+    .dot.offline { background: #444; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div>
+      <div class="phrase">Standing by.</div>
+      <div class="line2">
+        <span class="dot offline"></span>
+        Watch this frequency for contact opportunities.
+      </div>
+      <div class="hint">
+        If you find us on frequency and make contact with an officer, you may receive an invitation to FEAR, the non club, club.
+      </div>
+    </div>
+  </div>
+</body>
+</html>
