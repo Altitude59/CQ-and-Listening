@@ -2,11 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>WA7SJI</title>
+  <title>WA7SJI · CQ and Listening</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Keep it mysterious -->
-  <meta name="robots" content="noindex, nofollow" />
+  <!-- Basic SEO -->
+  <meta name="description" content="WA7SJI is an experimental amateur radio presence. When active, members monitor a published frequency and invite contact from curious operators." />
+  <meta name="keywords" content="WA7SJI, amateur radio, ham radio, CQ, HF radio, SSB, CW, radio club" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="WA7SJI · CQ and Listening" />
+  <meta property="og:description" content="An experimental amateur radio presence. Watch for an active frequency and make contact." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://wa7sji.org/" />
 
   <style>
     html, body {
@@ -38,12 +45,15 @@
     }
 
     .hint {
-      margin-top: 1.2rem;
+      margin-top: 1.3rem;
       font-size: 0.95rem;
       opacity: 0.55;
-      max-width: 48rem;
-      line-height: 1.55;
-      white-space: pre-line;
+      max-width: 52rem;
+      line-height: 1.6;
+    }
+
+    .hint p {
+      margin: 0 0 0.9rem 0;
     }
 
     .dot {
@@ -59,10 +69,10 @@
     .dot.listening { background: #00ff66; }
     .dot.offline   { background: #444; }
 
-    /* Rolling ellipsis (tucked close to the final character) */
+    /* Rolling ellipsis (tight to the word) */
     .ellipsis {
       display: none;
-      margin-left: 0.05em; /* closer to the 'g' in listening */
+      margin-left: 0.05em;
     }
 
     .ellipsis.on {
@@ -102,7 +112,10 @@
       </div>
 
       <div class="hint" id="hint">
-        If you find us on frequency and make contact with a member, you may receive an invitation to F.E.A.R., the non-club club. Bookmark this site and check back often.
+        <p>
+          If you find us on frequency and make contact with a member, you may receive an invitation to F.E.A.R., the non-club club.
+          Bookmark this site and check back often.
+        </p>
       </div>
     </div>
   </div>
@@ -115,22 +128,31 @@
       const hintEl       = document.getElementById("hint");
       const dotEl        = document.getElementById("dot");
 
-      // Copy blocks
       const OFFLINE = {
         heading: "Standing by.",
         subhead: "Stay tuned for contact opportunities.",
-        hint:
-          "If you find us on frequency and make contact with a member, you may receive an invitation to F.E.A.R., the non-club club. Bookmark this site and check back often."
+        hintHTML: `
+          <p>
+            If you find us on frequency and make contact with a member, you may receive an invitation to F.E.A.R., the non-club club.
+            Bookmark this site and check back often.
+          </p>
+        `
       };
 
       const LISTENING = {
         heading: "CQ and listening",
-        hint:
-          "One or more members are currently active on the above frequency. If you don't hear any traffic or a dialog between two stations, feel free to reach out by calling WA7SJI, then your call sign. If we hear you, someone will answer you. This is the first of two steps. As a second step, you may receive an invitation to join F.E.A.R, the non-club club."
+        hintHTML: `
+          <p>
+            One or more members are currently active on the above frequency. Reach out by calling WA7SJI, then say your call sign.
+          </p>
+          <p>
+            This is the first of two steps. As a second step, you may receive an invitation to join F.E.A.R., The Fellowship of Enthusiasts for Amateur Radio, the non-club club.
+          </p>
+        `
       };
 
       try {
-        const res = await fetch(`status.json?cb=${Date.now()}`, { cache: "no-store" });
+        const res = await fetch(\`status.json?cb=\${Date.now()}\`, { cache: "no-store" });
         if (!res.ok) throw new Error("status.json not reachable");
 
         const data = await res.json();
@@ -141,27 +163,25 @@
           ellipsisEl.className = "ellipsis on";
           dotEl.className = "dot listening";
 
-          const mode = data.mode ? ` · ${data.mode}` : "";
-          statusTextEl.textContent = `${data.frequency || ""}${mode}`.trim();
+          const mode = data.mode ? \` · \${data.mode}\` : "";
+          statusTextEl.textContent = \`\${data.frequency || ""}\${mode}\`.trim();
 
-          hintEl.textContent = LISTENING.hint;
+          hintEl.innerHTML = LISTENING.hintHTML;
         } else {
           phraseTextEl.textContent = OFFLINE.heading;
           ellipsisEl.className = "ellipsis";
           dotEl.className = "dot offline";
 
           statusTextEl.textContent = OFFLINE.subhead;
-          hintEl.textContent = OFFLINE.hint;
+          hintEl.innerHTML = OFFLINE.hintHTML;
         }
       } catch (e) {
-        // Fail quietly into offline copy
         phraseTextEl.textContent = OFFLINE.heading;
         ellipsisEl.className = "ellipsis";
         dotEl.className = "dot offline";
 
         statusTextEl.textContent = OFFLINE.subhead;
-        hintEl.textContent = OFFLINE.hint;
-
+        hintEl.innerHTML = OFFLINE.hintHTML;
         console.error(e);
       }
     }
