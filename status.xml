@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>WA7SJI Status</title>
+    <link>https://wa7sji.org/</link>
+    <description>Notifications when WA7SJI switches to listening.</description>
+    <language>en-us</language>
+    <ttl>15</ttl>
+
+    <!-- Latest status item -->
+    <item>
+      <title>Standing by.</title>
+      <link>https://wa7sji.org/</link>
+      <guid isPermaLink="false">wa7sji-status-2026-01-23T00:00:00Z</guid>
+      <pubDate>Fri, 23 Jan 2026 00:00:00 GMT</pubDate>
+      <description>Stay tuned for contact opportunities.</description>
+    </item>
+  </channel>
+</rss>
