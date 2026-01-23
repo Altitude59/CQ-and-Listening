@@ -1,0 +1,78 @@
+name: Update status.xml from status.json
+
+on:
+  push:
+    paths:
+      - "status.json"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate status.xml
+        shell: bash
+        run: |
+          python3 - << 'PY'
+          import json, datetime
+          from email.utils import format_datetime
+          from pathlib import Path
+
+          SITE = "https://www.wa7sji.org/"
+
+          cur = json.loads(Path("status.json").read_text(encoding="utf-8"))
+          status = str(cur.get("status", "")).strip().lower()
+
+          now = datetime.datetime.now(datetime.timezone.utc)
+          pubdate = format_datetime(now)
+          ts = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+          freq = str(cur.get("frequency", "")).strip()
+          mode = str(cur.get("mode", "")).strip()
+
+          if status == "listening":
+            detail = " · ".join([x for x in [freq, mode] if x])
+            title = "CQ and listening" + (f" — {detail}" if detail else "")
+            guid = f"wa7sji-listening-{ts}"
+            desc = "One or more members are currently active on the published frequency. Call WA7SJI, then say your call sign."
+          else:
+            # Keep a stable GUID for offline so readers don't notify on every offline edit
+            title = "Standing by."
+            guid = "wa7sji-standingby"
+            desc = "Stay tuned for contact opportunities."
+
+          rss = f'''<?xml version="1.0" encoding="UTF-8"?>
+          <rss version="2.0">
+            <channel>
+              <title>WA7SJI Status</title>
+              <link>{SITE}</link>
+              <description>Notifications when WA7SJI switches to listening.</description>
+              <language>en-us</language>
+              <ttl>15</ttl>
+
+              <item>
+                <title>{title}</title>
+                <link>{SITE}</link>
+                <guid isPermaLink="false">{guid}</guid>
+                <pubDate>{pubdate}</pubDate>
+                <description>{desc}</description>
+              </item>
+            </channel>
+          </rss>
+          '''
+          Path("status.xml").write_text(rss, encoding="utf-8")
+          print("Wrote status.xml")
+          PY
+
+      - name: Commit and push status.xml (if changed)
+        shell: bash
+        run: |
+          git config user.name "wa7sji-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add status.xml
+          git commit -m "Update status.xml" || exit 0
+          git push
