@@ -7,7 +7,7 @@
 
   <!-- SEO -->
   <meta name="description" content="WA7SJI is an experimental amateur radio presence. When active, members monitor a published frequency and invite contact from curious operators." />
-  <meta name="keywords" content="WA7SJI, amateur radio, ham radio, CQ, HF radio, SSB, CW, radio club" />
+  <meta name="keywords" content="WA7SJI, amateur radio, ham radio, CQ, HF radio, SSB, CW, FM, radio club" />
 
   <!-- Feed discovery -->
   <link rel="alternate" type="application/rss+xml" title="WA7SJI Status" href="/status.xml" />
@@ -26,7 +26,6 @@
       color: #fff;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
     }
-
     .container {
       height: 100%;
       display: grid;
@@ -34,19 +33,16 @@
       text-align: center;
       padding: 24px;
     }
-
     .phrase {
       font-size: clamp(1.6rem, 4vw, 2.4rem);
       letter-spacing: 0.04em;
       margin-bottom: 0.9rem;
     }
-
     .line2 {
       font-size: clamp(1.0rem, 2.2vw, 1.25rem);
       opacity: 0.78;
       min-height: 1.6em;
     }
-
     .hint {
       margin-top: 1.3rem;
       font-size: 0.95rem;
@@ -54,7 +50,6 @@
       max-width: 52rem;
       line-height: 1.6;
     }
-
     .hint p { margin: 0 0 0.9rem 0; }
 
     .subscribe {
@@ -62,14 +57,11 @@
       font-size: 0.85rem;
       opacity: 0.35;
     }
-
     .subscribe a {
       color: inherit;
       text-decoration: none;
       border-bottom: 1px dotted rgba(255,255,255,0.3);
     }
-
-    .subscribe a:hover { opacity: 0.6; }
 
     .dot {
       display: inline-block;
@@ -80,32 +72,30 @@
       transform: translateY(1px);
       background: #444;
     }
-
     .dot.listening { background: #00ff66; }
-    .dot.offline   { background: #444; }
+    .dot.offline { background: #444; }
 
-    /* Rolling ellipsis (tight to the word) */
+    /* Rolling ellipsis, tight to the word */
     .ellipsis {
       display: none;
       margin-left: 0.05em;
     }
-
     .ellipsis.on { display: inline-block; }
-
     .ellipsis span {
       opacity: 0;
       animation: dotAnim 1.4s infinite;
     }
-
     .ellipsis span:nth-child(1) { animation-delay: 0s; }
     .ellipsis span:nth-child(2) { animation-delay: 0.2s; }
     .ellipsis span:nth-child(3) { animation-delay: 0.4s; }
 
     @keyframes dotAnim {
-      0%   { opacity: 0; }
-      20%  { opacity: 1; }
+      0% { opacity: 0; }
+      20% { opacity: 1; }
       100% { opacity: 0; }
     }
+
+    .hidden { display: none; }
   </style>
 </head>
 
@@ -124,30 +114,9 @@
         <span id="statusText">Stay tuned for contact opportunities.</span>
       </div>
 
-      <div class="hint" id="hint">
-        <p>
-          If you find us on frequency and make contact with a member, you may receive an invitation to F.E.A.R., the non-club club. Bookmark this site and check back often.
-        </p>
-        <div class="subscribe" id="subscribe">
-          Subscribe for listening notifications:
-          <a href="/status.xml">wa7sji.org/status.xml</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    async function loadStatus() {
-      const phraseTextEl = document.getElementById("phraseText");
-      const ellipsisEl   = document.getElementById("ellipsis");
-      const statusTextEl = document.getElementById("statusText");
-      const hintEl       = document.getElementById("hint");
-      const dotEl        = document.getElementById("dot");
-
-      const OFFLINE = {
-        heading: "Standing by.",
-        subhead: "Stay tuned for contact opportunities.",
-        hintHTML: `
+      <div class="hint">
+        <!-- Offline copy -->
+        <div id="offlineCopy">
           <p>
             If you find us on frequency and make contact with a member, you may receive an invitation to F.E.A.R., the non-club club. Bookmark this site and check back often.
           </p>
@@ -155,52 +124,67 @@
             Subscribe for listening notifications:
             <a href="/status.xml">wa7sji.org/status.xml</a>
           </div>
-        `
-      };
+        </div>
 
-      const LISTENING = {
-        heading: "CQ and listening",
-        hintHTML: `
+        <!-- Listening copy -->
+        <div id="listeningCopy" class="hidden">
           <p>
             One or more members are currently active on the above frequency. Reach out by calling WA7SJI, then say your call sign.
           </p>
           <p>
             This is the first of two steps. As a second step, you may receive an invitation to join F.E.A.R., The Fellowship of Enthusiasts for Amateur Radio, the non-club club.
           </p>
-        `
-      };
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function loadStatus() {
+      var phraseTextEl = document.getElementById("phraseText");
+      var ellipsisEl = document.getElementById("ellipsis");
+      var statusTextEl = document.getElementById("statusText");
+      var dotEl = document.getElementById("dot");
+      var offlineCopyEl = document.getElementById("offlineCopy");
+      var listeningCopyEl = document.getElementById("listeningCopy");
 
       try {
-        const res = await fetch(\`status.json?cb=\${Date.now()}\`, { cache: "no-store" });
+        var url = "status.json?cb=" + Date.now();
+        var res = await fetch(url, { cache: "no-store" });
         if (!res.ok) throw new Error("status.json not reachable");
 
-        const data = await res.json();
-        const status = String(data.status || "").trim().toLowerCase();
+        var data = await res.json();
+        var status = String(data.status || "").trim().toLowerCase();
 
         if (status === "listening") {
-          phraseTextEl.textContent = LISTENING.heading;
+          phraseTextEl.textContent = "CQ and listening";
           ellipsisEl.className = "ellipsis on";
           dotEl.className = "dot listening";
 
-          const mode = data.mode ? \` · \${data.mode}\` : "";
-          statusTextEl.textContent = \`\${data.frequency || ""}\${mode}\`.trim();
+          var mode = data.mode ? (" · " + data.mode) : "";
+          statusTextEl.textContent = String(data.frequency || "").trim() + mode;
 
-          hintEl.innerHTML = LISTENING.hintHTML;
+          offlineCopyEl.classList.add("hidden");
+          listeningCopyEl.classList.remove("hidden");
         } else {
-          phraseTextEl.textContent = OFFLINE.heading;
+          phraseTextEl.textContent = "Standing by.";
           ellipsisEl.className = "ellipsis";
           dotEl.className = "dot offline";
+          statusTextEl.textContent = "Stay tuned for contact opportunities.";
 
-          statusTextEl.textContent = OFFLINE.subhead;
-          hintEl.innerHTML = OFFLINE.hintHTML;
+          listeningCopyEl.classList.add("hidden");
+          offlineCopyEl.classList.remove("hidden");
         }
       } catch (e) {
-        phraseTextEl.textContent = OFFLINE.heading;
+        // Fail safely to offline view
+        phraseTextEl.textContent = "Standing by.";
         ellipsisEl.className = "ellipsis";
         dotEl.className = "dot offline";
+        statusTextEl.textContent = "Stay tuned for contact opportunities.";
 
-        statusTextEl.textContent = OFFLINE.subhead;
-        hintEl.innerHTML = OFFLINE.hintHTML;
+        listeningCopyEl.classList.add("hidden");
+        offlineCopyEl.classList.remove("hidden");
+
         console.error(e);
       }
     }
