@@ -5,7 +5,7 @@
   <title>WA7SJI</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Optional: keep it mysterious -->
+  <!-- Keep it mysterious -->
   <meta name="robots" content="noindex, nofollow" />
 
   <style>
@@ -41,8 +41,9 @@
       margin-top: 1.2rem;
       font-size: 0.95rem;
       opacity: 0.55;
-      max-width: 42rem;
-      line-height: 1.5;
+      max-width: 48rem;
+      line-height: 1.55;
+      white-space: pre-line;
     }
 
     .dot {
@@ -58,10 +59,10 @@
     .dot.listening { background: #00ff66; }
     .dot.offline   { background: #444; }
 
-    /* Rolling ellipsis */
+    /* Rolling ellipsis (tucked close to the final character) */
     .ellipsis {
       display: none;
-      margin-left: 0.25em;
+      margin-left: 0.05em; /* closer to the 'g' in listening */
     }
 
     .ellipsis.on {
@@ -97,11 +98,11 @@
 
       <div class="line2">
         <span class="dot offline" id="dot"></span>
-        <span id="statusText">Watch here for a frequency to make contact opportunities.</span>
+        <span id="statusText">Stay tuned for contact opportunities.</span>
       </div>
 
-      <div class="hint">
-        If you find us on frequency and make contact with an officer, you may receive an invitation to FEAR, the non club, club.
+      <div class="hint" id="hint">
+        If you find us on frequency and make contact with a member, you may receive an invitation to F.E.A.R., the non-club club. Bookmark this site and check back often.
       </div>
     </div>
   </div>
@@ -111,7 +112,22 @@
       const phraseTextEl = document.getElementById("phraseText");
       const ellipsisEl   = document.getElementById("ellipsis");
       const statusTextEl = document.getElementById("statusText");
+      const hintEl       = document.getElementById("hint");
       const dotEl        = document.getElementById("dot");
+
+      // Copy blocks
+      const OFFLINE = {
+        heading: "Standing by.",
+        subhead: "Stay tuned for contact opportunities.",
+        hint:
+          "If you find us on frequency and make contact with a member, you may receive an invitation to F.E.A.R., the non-club club. Bookmark this site and check back often."
+      };
+
+      const LISTENING = {
+        heading: "CQ and listening",
+        hint:
+          "One or more members are currently active on the above frequency. If you don't hear any traffic or a dialog between two stations, feel free to reach out by calling WA7SJI, then your call sign. If we hear you, someone will answer you. This is the first of two steps. As a second step, you may receive an invitation to join F.E.A.R, the non-club club."
+      };
 
       try {
         const res = await fetch(`status.json?cb=${Date.now()}`, { cache: "no-store" });
@@ -121,23 +137,31 @@
         const status = String(data.status || "").trim().toLowerCase();
 
         if (status === "listening") {
-          phraseTextEl.textContent = "CQ and listening";
+          phraseTextEl.textContent = LISTENING.heading;
           ellipsisEl.className = "ellipsis on";
           dotEl.className = "dot listening";
 
           const mode = data.mode ? ` · ${data.mode}` : "";
           statusTextEl.textContent = `${data.frequency || ""}${mode}`.trim();
+
+          hintEl.textContent = LISTENING.hint;
         } else {
-          phraseTextEl.textContent = "Standing by.";
+          phraseTextEl.textContent = OFFLINE.heading;
           ellipsisEl.className = "ellipsis";
           dotEl.className = "dot offline";
-          statusTextEl.textContent = "Watch this frequency for contact opportunities.";
+
+          statusTextEl.textContent = OFFLINE.subhead;
+          hintEl.textContent = OFFLINE.hint;
         }
       } catch (e) {
-        phraseTextEl.textContent = "Standing by.";
+        // Fail quietly into offline copy
+        phraseTextEl.textContent = OFFLINE.heading;
         ellipsisEl.className = "ellipsis";
         dotEl.className = "dot offline";
-        statusTextEl.textContent = "Watch this frequency for contact opportunities.";
+
+        statusTextEl.textContent = OFFLINE.subhead;
+        hintEl.textContent = OFFLINE.hint;
+
         console.error(e);
       }
     }
