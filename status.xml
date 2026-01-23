@@ -2,18 +2,17 @@
 <rss version="2.0">
   <channel>
     <title>WA7SJI Status</title>
-    <link>https://wa7sji.org/</link>
+    <link>https://www.wa7sji.org/</link>
     <description>Notifications when WA7SJI switches to listening.</description>
     <language>en-us</language>
     <ttl>15</ttl>
 
-    <!-- Latest status item -->
     <item>
-      <title>Standing by.</title>
-      <link>https://wa7sji.org/</link>
-      <guid isPermaLink="false">wa7sji-status-2026-01-23T00:00:00Z</guid>
-      <pubDate>Fri, 23 Jan 2026 00:00:00 GMT</pubDate>
-      <description>Stay tuned for contact opportunities.</description>
+      <title>CQ and listening — 146.52 MHz · FM</title>
+      <link>https://www.wa7sji.org/</link>
+      <guid isPermaLink="false">wa7sji-listening-2026-01-23T22:26:38Z</guid>
+      <pubDate>Fri, 23 Jan 2026 22:26:38 +0000</pubDate>
+      <description>One or more members are currently active on the published frequency. Call WA7SJI, then say your call sign.</description>
     </item>
   </channel>
 </rss>
