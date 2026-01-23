@@ -1,0 +1,99 @@
+name: Generate RSS on Listening
+
+on:
+  push:
+    paths:
+      - "status.json"
+
+permissions:
+  contents: write
+
+jobs:
+  generate_rss:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (need previous commit)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Generate status.xml if offline -> listening
+        shell: bash
+        run: |
+          python3 - << 'PY'
+          import json, os, subprocess, datetime
+          from email.utils import format_datetime
+
+          def read_json(path):
+            with open(path, "r", encoding="utf-8") as f:
+              return json.load(f)
+
+          def read_prev_status():
+            # Try to read status.json from previous commit
+            try:
+              out = subprocess.check_output(["git", "show", "HEAD^:status.json"], text=True)
+              return json.loads(out)
+            except Exception:
+              return {"status": "offline"}
+
+          cur = read_json("status.json")
+          prev = read_prev_status()
+
+          cur_status = str(cur.get("status", "")).strip().lower()
+          prev_status = str(prev.get("status", "")).strip().lower()
+
+          # Only emit a new RSS item when we transition to listening
+          if not (prev_status != "listening" and cur_status == "listening"):
+            print("No offline->listening transition. Leaving status.xml unchanged.")
+            raise SystemExit(0)
+
+          freq = str(cur.get("frequency", "")).strip()
+          mode = str(cur.get("mode", "")).strip()
+
+          # Timestamp for RSS
+          now = datetime.datetime.now(datetime.timezone.utc)
+          pubdate = format_datetime(now)  # RFC 2822 / RSS-friendly
+          guid = f"wa7sji-listening-{now.strftime('%Y-%m-%dT%H:%M:%SZ')}"
+
+          # Title
+          parts = ["CQ and listening"]
+          detail = " · ".join([p for p in [freq, mode] if p])
+          if detail:
+            parts.append(detail)
+          title = " — ".join(parts)
+
+          rss = f'''<?xml version="1.0" encoding="UTF-8"?>
+          <rss version="2.0">
+            <channel>
+              <title>WA7SJI Status</title>
+              <link>https://www.wa7sji.org/</link>
+              <description>Notifications when WA7SJI switches to listening.</description>
+              <language>en-us</language>
+              <ttl>15</ttl>
+
+              <item>
+                <title>{title}</title>
+                <link>https://www.wa7sji.org/</link>
+                <guid isPermaLink="false">{guid}</guid>
+                <pubDate>{pubdate}</pubDate>
+                <description>One or more members are currently active on the published frequency. Call WA7SJI, then say your call sign.</description>
+              </item>
+            </channel>
+          </rss>
+          '''
+          with open("status.xml", "w", encoding="utf-8") as f:
+            f.write(rss)
+
+          print("Wrote status.xml")
+          PY
+
+      - name: Commit status.xml (if created/changed)
+        shell: bash
+        run: |
+          if [ -f status.xml ]; then
+            git config user.name "wa7sji-bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add status.xml
+            git commit -m "Update status.xml (listening)" || exit 0
+            git push
+          fi
