@@ -9,9 +9,12 @@
   <meta name="description" content="WA7SJI is an experimental amateur radio presence. When active, members monitor a published frequency and invite contact from curious operators." />
   <meta name="keywords" content="WA7SJI, amateur radio, ham radio, CQ, HF radio, SSB, CW, radio club" />
 
+  <!-- Feed discovery -->
+  <link rel="alternate" type="application/rss+xml" title="WA7SJI Status" href="/status.xml" />
+
   <!-- Open Graph -->
   <meta property="og:title" content="WA7SJI · CQ and Listening" />
-  <meta property="og:description" content="An experimental amateur radio presence. Watch for an active frequency and make contact." />
+  <meta property="og:description" content="Watch for an active frequency and make contact." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.wa7sji.org/" />
 
@@ -52,9 +55,7 @@
       line-height: 1.6;
     }
 
-    .hint p {
-      margin: 0 0 0.9rem 0;
-    }
+    .hint p { margin: 0 0 0.9rem 0; }
 
     .subscribe {
       margin-top: 0.8rem;
@@ -68,9 +69,7 @@
       border-bottom: 1px dotted rgba(255,255,255,0.3);
     }
 
-    .subscribe a:hover {
-      opacity: 0.6;
-    }
+    .subscribe a:hover { opacity: 0.6; }
 
     .dot {
       display: inline-block;
@@ -85,15 +84,13 @@
     .dot.listening { background: #00ff66; }
     .dot.offline   { background: #444; }
 
-    /* Rolling ellipsis */
+    /* Rolling ellipsis (tight to the word) */
     .ellipsis {
       display: none;
       margin-left: 0.05em;
     }
 
-    .ellipsis.on {
-      display: inline-block;
-    }
+    .ellipsis.on { display: inline-block; }
 
     .ellipsis span {
       opacity: 0;
@@ -129,8 +126,7 @@
 
       <div class="hint" id="hint">
         <p>
-          If you find us on frequency and make contact with a member, you may receive an invitation to F.E.A.R., the non-club club.
-          Bookmark this site and check back often.
+          If you find us on frequency and make contact with a member, you may receive an invitation to F.E.A.R., the non-club club. Bookmark this site and check back often.
         </p>
         <div class="subscribe" id="subscribe">
           Subscribe for listening notifications:
@@ -146,7 +142,6 @@
       const ellipsisEl   = document.getElementById("ellipsis");
       const statusTextEl = document.getElementById("statusText");
       const hintEl       = document.getElementById("hint");
-      const subscribeEl  = document.getElementById("subscribe");
       const dotEl        = document.getElementById("dot");
 
       const OFFLINE = {
@@ -154,8 +149,7 @@
         subhead: "Stay tuned for contact opportunities.",
         hintHTML: `
           <p>
-            If you find us on frequency and make contact with a member, you may receive an invitation to F.E.A.R., the non-club club.
-            Bookmark this site and check back often.
+            If you find us on frequency and make contact with a member, you may receive an invitation to F.E.A.R., the non-club club. Bookmark this site and check back often.
           </p>
           <div class="subscribe">
             Subscribe for listening notifications:
@@ -168,12 +162,10 @@
         heading: "CQ and listening",
         hintHTML: `
           <p>
-            One or more members are currently active on the above frequency.
-            Reach out by calling WA7SJI, then say your call sign.
+            One or more members are currently active on the above frequency. Reach out by calling WA7SJI, then say your call sign.
           </p>
           <p>
-            This is the first of two steps. As a second step, you may receive an invitation to join F.E.A.R.,
-            The Fellowship of Enthusiasts for Amateur Radio, the non-club club.
+            This is the first of two steps. As a second step, you may receive an invitation to join F.E.A.R., The Fellowship of Enthusiasts for Amateur Radio, the non-club club.
           </p>
         `
       };
