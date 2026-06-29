@@ -1,5 +1,5 @@
 {
-  "status": "offline",
-  "frequency": "14.241 MHz",
+  "status": "listening",
+  "frequency": "7.241 MHz",
   "mode": "SSB"
 }
